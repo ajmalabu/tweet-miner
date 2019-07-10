@@ -2,20 +2,19 @@ from selenium import webdriver
 from bs4 import BeautifulSoup
 import datetime
 import time
-import re
 import csv
 import json
 
 
-class TweetScraper:
+class TweetMiner:
     curTime = datetime.datetime.now()
     today = curTime.strftime("%Y-%m-%d")
     defaultTimeFrom = (curTime-datetime.timedelta(days=10)
                        ).strftime("%Y-%m-%d")
 
-    def __init__(self):
+    def __init__(self, webdriverPath):
         self.driver = webdriver.Chrome(
-            "/Users/ajmalaboobacker/dev/twitter-bot/chromedriver")
+            webdriverPath)  # initialize webdriver to allow Selenium access to browser for automation
 
     # Function to strip all hashtags, mentions and links in the tweet text
     def stripLinks(self, tagToClean):
@@ -35,11 +34,11 @@ class TweetScraper:
         return txtToClean
 
     def writeToFile(self, listToWrite):
-        with open('test.json', 'w') as f:
+        with open('tweets.json', 'w') as f:
             json.dump(listToWrite, f)
         f.close()
 
-    def searchPosts(self, keyword, hashtag=True, timeFrom=defaultTimeFrom, timeTo=today):
+    def searchPosts(self, keyword, hashtag=True, timeFrom=defaultTimeFrom, timeTo=today, scrollNum=20):
         tweetData = []
         prefix = ""
 
@@ -50,9 +49,13 @@ class TweetScraper:
         self.driver.get(
             "https://twitter.com/search?l=&q=" + prefix + keyword + "%20since%3A"+timeFrom+"%20until%3A"+timeTo+"&src=typd")
 
+        # Scroll the webbrowser to the end to load more tweets
         scroll = "window.scrollTo(0,document.body.scrollHeight)"
-        for i in range(20):
+
+        # Number of times to scroll
+        for i in range(scrollNum):
             self.driver.execute_script(scroll)
+            # Wait a few seconds after each scroll to allow enough time to load the new tweets
             time.sleep(3)
 
         page = BeautifulSoup(self.driver.page_source, 'html.parser')
@@ -75,3 +78,10 @@ class TweetScraper:
             tweetData.append(tweetContent)
 
         self.writeToFile(tweetData)
+
+# Sample object:
+#
+# tweetminer = TweetMiner("path/to/your/webdriver")
+# tweetminer.searchPosts("london", true, "2017-01-01", "2019-01-01", 1000000)
+#
+#
