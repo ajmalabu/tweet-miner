@@ -22,7 +22,7 @@ The function can also take a boolean parameter called "hashtag" (`true` by defau
 
    - **For Safari:** The driver is included by default on MacOS. Enable it by going to _Safari_ > _Preferences_ > _Advanced_ > Check _"Show Develop menu in menu bar"_. Then go to _Develop_ > _Allow Remote Automation_
 
-   After performing any of the 2 above steps for your browser of choice, change **line 17** to "webdriver.Firefox(webdriverPath)" or "webdriver.Safari(webdriverPath)"
+   After performing any of the 2 above steps for your browser of choice, change **line 17** in **tweetminer.py** to "webdriver.Firefox(webdriverPath)" or "webdriver.Safari(webdriverPath)"
 
 2. Default time frame to mine for tweets begins is the preceding 10 days. You can modify this time frame by passing the desired dates in the "YYYY-MM-DD" format as parameters in the "searchPosts" function call.
 3. Increase/decrease the "scrollNum" parameter (default value = 20) to mine more/less tweets according to your needs. For example, I have the script running on an EC2 instance with the time frame set to the last 365 days, and the loop parameter set to 500,000.
