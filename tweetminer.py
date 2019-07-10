@@ -4,6 +4,7 @@ import datetime
 import time
 import csv
 import json
+import re
 
 
 class TweetMiner:
@@ -17,14 +18,19 @@ class TweetMiner:
             webdriverPath)  # initialize webdriver to allow Selenium access to browser for automation
 
     # Function to strip all hashtags, mentions and links in the tweet text
-    def stripLinks(self, tagToClean):
-        links = tagToClean.find_all("a")
-        for link in links:
-            link.decompose()
-        return tagToClean
+    def stripLinks(self, txtToClean):
+        txtToClean = re.sub(
+            r"[-a-zA-Z0-9@:%_\+.~#?&//=]{2,256}\.[a-z]{2,4}\b(\/[-a-zA-Z0-9@:%_\+.~#?&//=]*)?", "", txtToClean)
+        return txtToClean
 
     # Function to remove trailing and leading whitespaces, newline characters, and multiple continuous spaces
     def cleanText(self, txtToClean):
+
+        # Remove hashtags and mentions
+        txtToClean = re.sub(r"\s([#@][\w_-]+)", "", txtToClean)
+        # Remove hashtags and mentions from beginning
+        txtToClean = re.sub("#", "", txtToClean)
+        txtToClean = re.sub("@", "", txtToClean)
         # Remove trailing and leading whitespaces
         txtToClean.strip()
 
@@ -60,17 +66,18 @@ class TweetMiner:
             # Wait a few seconds after each scroll to allow enough time to load the new tweets
             time.sleep(3)
 
-        page = BeautifulSoup(self.driver.page_source, 'html.parser')
+        page = BeautifulSoup(self.driver.page_source,
+                             'html.parser')
 
         self.driver.quit()
 
         tweets = page.find_all("div", class_="tweet")
 
         for tweet in tweets:
-            tweetText = tweet.find("p", class_="TweetTextSize")
+            tweetText = tweet.find("p", class_="TweetTextSize").get_text()
 
             tweetText = self.stripLinks(tweetText)
-            tweetText = self.cleanText(tweetText.get_text())
+            tweetText = self.cleanText(tweetText)
 
             tweetTime = tweet.find(
                 "span", class_="_timestamp").get('data-time')
@@ -81,9 +88,12 @@ class TweetMiner:
 
         self.writeToFile(tweetData)
 
+
 # Sample object:
 #
 # tweetminer = TweetMiner("path/to/your/webdriver")
 # tweetminer.searchPosts("london", true, "2017-01-01", "2019-01-01", 1000000)
 #
 #
+tweetminer = TweetMiner("/Users/ajmalaboobacker/dev/twitter-bot/chromedriver")
+tweetminer.searchPosts("trump", True, "2017-01-01", "2019-01-01", 1)
