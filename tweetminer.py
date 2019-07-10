@@ -33,11 +33,13 @@ class TweetMiner:
 
         return txtToClean
 
+    # Function to write to JSON file
     def writeToFile(self, listToWrite):
         with open('tweets.json', 'w') as f:
             json.dump(listToWrite, f)
         f.close()
 
+    # Function to search posts, scrape information and create JSON object
     def searchPosts(self, keyword, hashtag=True, timeFrom=defaultTimeFrom, timeTo=today, scrollNum=20):
         tweetData = []
         prefix = ""
