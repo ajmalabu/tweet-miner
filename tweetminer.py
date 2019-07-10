@@ -17,15 +17,14 @@ class TweetMiner:
         self.driver = webdriver.Chrome(
             webdriverPath)  # initialize webdriver to allow Selenium access to browser for automation
 
-    # Function to strip all hashtags, mentions and links in the tweet text
-    def stripLinks(self, txtToClean):
+    # Function to remove trailing and leading whitespaces, newline characters, and multiple continuous spaces
+
+    def cleanText(self, txtToClean):
+        # Strip links
         txtToClean = re.sub(
             r"[-a-zA-Z0-9@:%_\+.~#?&//=]{2,256}\.[a-z]{2,4}\b(\/[-a-zA-Z0-9@:%_\+.~#?&//=]*)?", "", txtToClean)
-        return txtToClean
-
-    # Function to remove trailing and leading whitespaces, newline characters, and multiple continuous spaces
-    def cleanText(self, txtToClean):
-
+        txtToClean = re.sub(
+            r'^https?:\/\/.*[\r\n]*', '', txtToClean, flags=re.MULTILINE)
         # Remove hashtags and mentions
         txtToClean = re.sub(r"\s([#@][\w_-]+)", "", txtToClean)
         # Remove hashtags and mentions from beginning
@@ -33,7 +32,10 @@ class TweetMiner:
         txtToClean = re.sub("@", "", txtToClean)
         # Remove trailing and leading whitespaces
         txtToClean.strip()
-
+        # Remove all punctuation
+        txtToClean = re.sub(r'[^\w\s]', "", txtToClean)
+        # Remove all digits
+        txtToClean = re.sub(r"\d+", "", txtToClean)
         # Remove all extra spaces, tabs and newlines
         txtToClean = " ".join(txtToClean.split())
 
@@ -74,9 +76,9 @@ class TweetMiner:
         tweets = page.find_all("div", class_="tweet")
 
         for tweet in tweets:
-            tweetText = tweet.find("p", class_="TweetTextSize").get_text()
+            tweetText = tweet.find(
+                "p", class_="TweetTextSize").get_text().lower()
 
-            tweetText = self.stripLinks(tweetText)
             tweetText = self.cleanText(tweetText)
 
             tweetTime = tweet.find(
@@ -86,6 +88,7 @@ class TweetMiner:
                 "tweet": tweetText, "timestamp": tweetTime}
             tweetData.append(tweetContent)
 
+        print(len(tweetData))
         self.writeToFile(tweetData)
 
 
