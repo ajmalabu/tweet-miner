@@ -12,7 +12,7 @@ The function can also take a boolean parameter called "hashtag" (`true` by defau
    - initialize object with the path to your webdriver as the parameter
    - call the "searchPosts" functions through the object with the desired parameters
 4. Enter the folder via command line and activate the virtual environment via the command `source bin/activate`.
-5. Run the program via command `python3 app.py`
+5. Run the program via command `python3 tweetminer.py`
 
 ## Customization:
 
